@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}MiniEcom{% endblock %}</title>
+  <style>
+    /* Django admin colour palette */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Roboto","Lucida Grande","DejaVu Sans","Bitstream Vera Sans",Verdana,Arial,sans-serif;
+      font-size: 13px;
+      color: #333;
+      background: #eeeeee;
+    }
+
+    a { color: #447e9b; text-decoration: none; }
+    a:hover { color: #036; text-decoration: underline; }
+
+    /* ---------- Header ---------- */
+    #header {
+      background: #417690;
+      color: #ffc;
+      padding: 10px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    #branding h1 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: normal;
+      color: #ffc;
+    }
+
+    #branding h1 a {
+      color: #ffc;
+      text-decoration: none;
+    }
+
+    #user-tools {
+      font-size: 11px;
+      color: #fff;
+    }
+
+    #user-tools a {
+      color: #fff;
+      text-decoration: underline;
+      margin-left: 8px;
+    }
+
+    /* ---------- Messages ---------- */
+    ul.messagelist {
+      padding: 0;
+      margin: 0;
+      list-style: none;
+    }
+
+    ul.messagelist li {
+      padding: 8px 40px;
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    ul.messagelist li.success { background: #dfd; color: #333; border-bottom: 1px solid #cdc; }
+    ul.messagelist li.error   { background: #fdd; color: #333; border-bottom: 1px solid #dcc; }
+    ul.messagelist li.warning { background: #ffd; color: #333; border-bottom: 1px solid #ddc; }
+    ul.messagelist li.info    { background: #d9edf7; color: #333; border-bottom: 1px solid #bce8f1; }
+
+    /* ---------- Breadcrumb ---------- */
+    div.breadcrumbs {
+      background: #79aec8;
+      padding: 8px 40px;
+      color: #fff;
+      font-size: 13px;
+    }
+
+    div.breadcrumbs a {
+      color: #fff;
+      text-decoration: none;
+    }
+
+    /* ---------- Content area ---------- */
+    #content {
+      padding: 20px 40px;
+    }
+
+    #content h1 {
+      font-size: 18px;
+      font-weight: bold;
+      color: #666;
+      margin: 0 0 16px 0;
+      padding: 0;
+    }
+
+    /* ---------- Module / fieldset boxes ---------- */
+    .module {
+      background: #fff;
+      border: 1px solid #ddd;
+      margin-bottom: 20px;
+    }
+
+    .module h2, .module caption {
+      background: #417690;
+      color: #fff;
+      font-size: 13px;
+      font-weight: bold;
+      padding: 6px 10px;
+      margin: 0;
+      text-align: left;
+    }
+
+    /* ---------- Results table (like admin changelist) ---------- */
+    #result_list {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+    }
+
+    #result_list thead th {
+      background: #417690;
+      color: #fff;
+      font-size: 12px;
+      padding: 6px 10px;
+      text-align: left;
+      font-weight: bold;
+      border-right: 1px solid #6699bb;
+    }
+
+    #result_list tbody tr {
+      border-bottom: 1px solid #eee;
+    }
+
+    #result_list tbody tr:nth-child(odd) { background: #f8f8f8; }
+    #result_list tbody tr:hover { background: #eaf0f5; }
+
+    #result_list tbody td {
+      padding: 6px 10px;
+      vertical-align: middle;
+      font-size: 13px;
+    }
+
+    /* ---------- Buttons ---------- */
+    .button, input[type=submit], button.submit-row {
+      background: #417690;
+      color: #fff;
+      border: none;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      border-radius: 0;
+    }
+
+    .button:hover, input[type=submit]:hover {
+      background: #205067;
+    }
+
+    .button.danger {
+      background: #ba2121;
+    }
+
+    .button.danger:hover {
+      background: #a41515;
+    }
+
+    .button.default {
+      background: #417690;
+    }
+
+    /* ---------- Forms ---------- */
+    .form-row {
+      padding: 8px 10px;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .form-row label {
+      font-size: 13px;
+      font-weight: bold;
+      color: #666;
+      width: 120px;
+      flex-shrink: 0;
+    }
+
+    .form-row input[type=text],
+    .form-row input[type=password],
+    .form-row input[type=number],
+    input.vTextField {
+      border: 1px solid #ccc;
+      padding: 5px 6px;
+      font-size: 13px;
+      font-family: inherit;
+    }
+
+    .form-row input:focus {
+      outline: none;
+      border-color: #999;
+    }
+
+    /* ---------- Error box ---------- */
+    .errornote {
+      background: #fdd;
+      border: 1px solid #dcc;
+      color: #ba2121;
+      font-size: 13px;
+      padding: 8px 12px;
+      margin-bottom: 10px;
+    }
+
+    /* ---------- Submit row ---------- */
+    .submit-row {
+      background: #f8f8f8;
+      border: 1px solid #ddd;
+      padding: 8px 12px;
+      text-align: right;
+    }
+
+    /* ---------- Action links ---------- */
+    .addlink {
+      background: url("") no-repeat;
+      padding-left: 0;
+    }
+
+    /* ---------- Object tools ---------- */
+    .object-tools {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 10px 0;
+      display: flex;
+      gap: 8px;
+    }
+
+    .object-tools a {
+      background: #417690;
+      color: #fff !important;
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: bold;
+      text-decoration: none !important;
+      display: inline-block;
+    }
+
+    .object-tools a:hover {
+      background: #205067;
+    }
+
+    /* ---------- Qty input ---------- */
+    input.qty-input {
+      width: 50px;
+      border: 1px solid #ccc;
+      padding: 4px 5px;
+      font-size: 13px;
+      font-family: inherit;
+    }
+
+    .inline-form { display: inline; }
+
+    /* ---------- Pagination / info line ---------- */
+    p.paginator {
+      font-size: 12px;
+      color: #666;
+      margin: 8px 0 0 0;
+    }
+
+    /* ---------- Login Page specific overrides ---------- */
+    body.login {
+      background: #eeeeee;
+    }
+    
+    .login #container {
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      overflow: hidden;
+      width: 28em;
+      min-width: 300px;
+      margin: 100px auto;
+      box-sizing: border-box;
+    }
+
+    .login #header {
+      background: #417690;
+      color: #ffc;
+      padding: 10px;
+      text-align: center;
+      font-size: 16px;
+      font-weight: normal;
+      display: block;
+    }
+
+    .login #header a {
+      color: #ffc;
+    }
+
+    .login #content {
+      padding: 20px;
+    }
+
+    .login .form-row {
+      padding: 8px 0;
+      border-bottom: none;
+      display: block;
+    }
+
+    .login .form-row label {
+      display: block;
+      line-height: 2em;
+      width: auto;
+      font-size: 13px;
+      font-weight: bold;
+      color: #666;
+    }
+
+    .login .form-row input[type=text],
+    .login .form-row input[type=password] {
+      padding: 8px;
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      font-size: 13px;
+      font-family: inherit;
+    }
+
+    .login .submit-row {
+      padding: 1em 0 0 0;
+      margin: 0;
+      text-align: center;
+      background: none;
+      border: none;
+    }
+  </style>
+</head>
+<body class="{% block bodyclass %}{% endblock %}">
+
+{% block header %}
+<!-- Header -->
+<div id="header">
+  <div id="branding">
+    <h1><a href="{% url 'product_list' %}">MiniEcom</a></h1>
+  </div>
+  <div id="user-tools">
+    {% if user.is_authenticated %}
+      Welcome, <strong>{{ user.username }}</strong>.
+      <a href="{% url 'view_cart' %}">View cart ({{ cart_item_count }})</a> /
+      <form method="post" action="{% url 'logout' %}" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" style="background:none;border:none;color:#fff;text-decoration:underline;cursor:pointer;font-size:11px;padding:0;font-family:inherit;">Log out</button>
+      </form>
+    {% else %}
+      <a href="{% url 'login' %}">Log in</a> /
+      <a href="{% url 'register' %}">Register</a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+<!-- Flash messages -->
+{% if messages %}
+  <ul class="messagelist">
+    {% for msg in messages %}
+      <li class="{{ msg.tags }}">{{ msg }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
+<!-- Breadcrumbs -->
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'product_list' %}">Home</a>
+  {% block breadcrumb_extra %}{% endblock %}
+</div>
+{% endblock %}
+
+<!-- Main content -->
+{% block content_wrapper %}
+<div id="content">
+  {% block content %}{% endblock %}
+</div>
+{% endblock %}
+
+<div id="footer"></div>
+
+</body>
+</html>

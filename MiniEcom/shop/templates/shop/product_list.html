@@ -1,0 +1,83 @@
+{% extends "shop/base.html" %}
+
+{% block title %}Products | MiniEcom{% endblock %}
+
+{% block breadcrumb_extra %}
+  &rsaquo; Products
+{% endblock %}
+
+{% block content %}
+
+<h1>Select a product to add to cart</h1>
+
+<!-- Object tools -->
+<ul class="object-tools">
+  <a href="{% url 'view_cart' %}">View my cart ({{ cart_item_count }})</a>
+</ul>
+
+<!-- Product table like an admin changelist -->
+<div class="module">
+  <table id="result_list">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Price</th>
+        <th>Stock</th>
+        {% if user.is_authenticated %}
+          <th>Qty</th>
+          <th>Action</th>
+        {% endif %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for product in products %}
+      <tr>
+        <td>
+          <a href="{% url 'product_detail' product.id %}"><strong>{{ product.name }}</strong></a>
+        </td>
+        <td>{{ product.description|default:"-"|truncatechars:60 }}</td>
+        <td>${{ product.price }}</td>
+        <td>
+          {% if product.stock == 0 %}
+            <span style="color:#ba2121;">Out of stock</span>
+          {% else %}
+            {{ product.stock }}
+          {% endif %}
+        </td>
+        {% if user.is_authenticated %}
+          <td>
+            {% if product.stock > 0 %}
+              <form method="post" action="{% url 'add_to_cart' product.id %}" id="form-{{ product.id }}">
+                {% csrf_token %}
+                <input type="number" name="quantity" value="1" min="1" max="{{ product.stock }}" class="qty-input" />
+            {% endif %}
+          </td>
+          <td>
+            {% if product.stock > 0 %}
+                <input type="submit" value="Add to cart" class="button default" />
+              </form>
+            {% else %}
+              -
+            {% endif %}
+          </td>
+        {% endif %}
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="6" style="padding:12px 10px;color:#666;">No products found.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<p class="paginator">{{ products|length }} product{{ products|length|pluralize }}</p>
+
+{% if not user.is_authenticated %}
+  <p style="margin-top:10px;font-size:13px;">
+    Please <a href="{% url 'login' %}">log in</a> to add items to your cart.
+  </p>
+{% endif %}
+
+{% endblock %}

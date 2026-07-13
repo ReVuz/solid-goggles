@@ -1,0 +1,71 @@
+{% extends "shop/base.html" %}
+
+{% block title %}{{ product.name }} | MiniEcom{% endblock %}
+
+{% block breadcrumb_extra %}
+  &rsaquo; <a href="{% url 'product_list' %}">Products</a>
+  &rsaquo; {{ product.name }}
+{% endblock %}
+
+{% block content %}
+
+<h1>{{ product.name }}</h1>
+
+<!-- Product details as an admin-style fieldset -->
+<div class="module">
+  <h2>Product information</h2>
+
+  <div class="form-row">
+    <label>Name:</label>
+    <span>{{ product.name }}</span>
+  </div>
+
+  <div class="form-row">
+    <label>Description:</label>
+    <span>{{ product.description|default:"No description available." }}</span>
+  </div>
+
+  <div class="form-row">
+    <label>Price:</label>
+    <span>${{ product.price }}</span>
+  </div>
+
+  <div class="form-row">
+    <label>Stock:</label>
+    <span>
+      {% if product.stock == 0 %}
+        <span style="color:#ba2121;font-weight:bold;">Out of stock</span>
+      {% else %}
+        {{ product.stock }} units available
+      {% endif %}
+    </span>
+  </div>
+</div>
+
+<!-- Add to cart -->
+{% if user.is_authenticated %}
+  {% if product.stock > 0 %}
+    <div class="module">
+      <h2>Add to cart</h2>
+      <form method="post" action="{% url 'add_to_cart' product.id %}">
+        {% csrf_token %}
+        <div class="form-row">
+          <label for="qty">Quantity:</label>
+          <input type="number" name="quantity" id="qty" value="1" min="1" max="{{ product.stock }}" class="qty-input" style="width:70px;" />
+        </div>
+        <div class="submit-row">
+          <input type="submit" value="Add to cart" class="button default" />
+          &nbsp;
+          <a href="{% url 'product_list' %}">Cancel</a>
+        </div>
+      </form>
+    </div>
+  {% else %}
+    <p style="color:#ba2121;font-weight:bold;">This product is out of stock.</p>
+    <p><a href="{% url 'product_list' %}">&laquo; Back to products</a></p>
+  {% endif %}
+{% else %}
+  <p>Please <a href="{% url 'login' %}?next={{ request.path }}">log in</a> to add this item to your cart.</p>
+{% endif %}
+
+{% endblock %}

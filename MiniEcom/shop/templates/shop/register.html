@@ -1,0 +1,53 @@
+{% extends "shop/base.html" %}
+
+{% block title %}Register | MiniEcom{% endblock %}
+
+{% block bodyclass %}login{% endblock %}
+
+{% block header %}{% endblock %}
+{% block breadcrumbs %}{% endblock %}
+
+{% block content_wrapper %}
+<div id="container">
+  
+  <div id="header">
+    <a href="{% url 'product_list' %}">MiniEcom</a>
+  </div>
+
+  <div id="content">
+    <h2 style="margin: 0 0 15px 0; font-size: 14px; color: #666; text-align: center;">Create account</h2>
+
+    {% if error %}
+      <p class="errornote">{{ error }}</p>
+    {% endif %}
+
+    <form method="post" action="{% url 'register' %}">
+      {% csrf_token %}
+
+      <div class="form-row">
+        <label for="id_reg_username">Username:</label>
+        <input type="text" name="username" id="id_reg_username" autofocus required />
+      </div>
+
+      <div class="form-row">
+        <label for="id_reg_password">Password:</label>
+        <input type="password" name="password" id="id_reg_password" required />
+      </div>
+
+      <div class="form-row">
+        <label for="id_reg_password2">Password (again):</label>
+        <input type="password" name="password2" id="id_reg_password2" required />
+      </div>
+
+      <div class="submit-row">
+        <input type="submit" value="Create account" class="button default" style="padding:10px 15px;" />
+      </div>
+    </form>
+
+    <p style="text-align:center; font-size:12px; margin-top:20px; margin-bottom:0;">
+      Already have an account? <a href="{% url 'login' %}">Log in</a>
+    </p>
+  </div>
+
+</div>
+{% endblock %}

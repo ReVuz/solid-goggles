@@ -1,0 +1,80 @@
+{% extends "shop/base.html" %}
+
+{% block title %}My Cart | MiniEcom{% endblock %}
+
+{% block breadcrumb_extra %}
+  &rsaquo; <a href="{% url 'product_list' %}">Products</a>
+  &rsaquo; My Cart
+{% endblock %}
+
+{% block content %}
+
+<h1>My shopping cart</h1>
+
+{% if items %}
+
+  <div class="module">
+    <table id="result_list">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Unit price</th>
+          <th>Quantity</th>
+          <th>Subtotal</th>
+          <th>Remove</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in items %}
+        <tr>
+          <td>
+            <a href="{% url 'product_detail' item.product.id %}">{{ item.product.name }}</a>
+          </td>
+          <td>${{ item.product.price }}</td>
+          <td>
+            <form method="post" action="{% url 'update_cart' item.id %}" class="inline-form">
+              {% csrf_token %}
+              <input type="number" name="quantity" value="{{ item.quantity }}" min="0" max="{{ item.product.stock }}" class="qty-input" />
+              <input type="submit" value="Update" class="button" style="padding:3px 8px;font-size:12px;" />
+            </form>
+          </td>
+          <td><strong>${{ item.subtotal }}</strong></td>
+          <td>
+            <form method="post" action="{% url 'remove_from_cart' item.id %}" class="inline-form">
+              {% csrf_token %}
+              <input type="submit" value="Remove" class="button danger"
+                     style="padding:3px 8px;font-size:12px;"
+                     onclick="return confirm('Remove this item?')" />
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+
+        <!-- Grand total row -->
+        <tr style="background:#eaf0f5;font-weight:bold;">
+          <td colspan="3" style="text-align:right;padding:8px 10px;">Grand Total:</td>
+          <td style="padding:8px 10px;">${{ cart.total_price }}</td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="submit-row" style="text-align:left;">
+    <a href="{% url 'product_list' %}" class="button">&laquo; Continue shopping</a>
+    &nbsp;
+    <form method="post" action="{% url 'clear_cart' %}" class="inline-form">
+      {% csrf_token %}
+      <input type="submit" value="Clear cart" class="button danger"
+             onclick="return confirm('Remove all items from your cart?')" />
+    </form>
+  </div>
+
+{% else %}
+
+  <p style="font-size:13px;color:#666;">Your cart is empty.</p>
+  <p><a href="{% url 'product_list' %}">&laquo; Back to products</a></p>
+
+{% endif %}
+
+{% endblock %}
