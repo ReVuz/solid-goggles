@@ -1,7 +1,7 @@
 """
 shop/views.py
 =============
-Function-Based Views for the MiniEcom cart module.
+Function-Based Views for the MiniEcom shop.
 
 All cart-related views require authentication (@login_required).
 Cart data is stored in the database (NOT session-based).
@@ -15,6 +15,8 @@ from django.contrib import messages
 from django.db import IntegrityError
 
 from .models import Product, Cart, CartItem
+from .forms import ProductForm
+from . import ai_service
 
 
 # ---------------------------------------------------------------------------
@@ -322,3 +324,89 @@ def clear_cart(request):
     cart.items.all().delete()
     messages.info(request, f"Your cart has been cleared ({count} item(s) removed).")
     return redirect('view_cart')
+
+
+# ---------------------------------------------------------------------------
+# AI-powered product creation view
+# ---------------------------------------------------------------------------
+
+@login_required
+def add_product(request):
+    """
+    Display a product creation form (GET) and process it with AI enhancement (POST).
+
+    AI logic:
+      1. If description is blank  → call ai_service.generate_description()
+      2. If price is blank/zero   → call ai_service.predict_price()
+      3. Save the AI-enhanced product to the database.
+    """
+    ai_info = {}  # collects messages about what the AI filled in
+
+    if request.method == 'POST':
+        form = ProductForm(request.POST)
+
+        if form.is_valid():
+            # --- Extract cleaned data (do NOT save yet) ---
+            product = form.save(commit=False)
+
+            name     = product.name
+            category = product.category
+
+            # ── Step 1: AI Description Generation ──────────────────────────
+            if not product.description:
+                generated = ai_service.generate_description(name, category)
+                if generated:
+                    product.description = generated
+                    ai_info['description'] = generated
+                else:
+                    product.description = f"A quality {name} in the {category} category."
+                    ai_info['description_fallback'] = True
+
+            # ── Step 2: AI Price Prediction ────────────────────────────────
+            if not product.price:
+                predicted = ai_service.predict_price(
+                    name, category, product.description
+                )
+                if predicted:
+                    product.price = predicted
+                    ai_info['price'] = str(predicted)
+                else:
+                    # Sensible fallback so the record can always be saved
+                    product.price = 999.00
+                    ai_info['price_fallback'] = True
+
+            # ── Step 3: Persist to database ────────────────────────────────
+            product.save()
+
+            # Build a user-friendly success message
+            parts = []
+            if 'description' in ai_info:
+                parts.append("description")
+            if 'price' in ai_info:
+                parts.append(f"price (₹{ai_info['price']})")
+            if parts:
+                ai_note = f"AI generated the {' and '.join(parts)}."
+            else:
+                ai_note = ""
+
+            success_msg = f"'{product.name}' has been added successfully."
+            if ai_note:
+                success_msg += f" {ai_note}"
+            messages.success(request, success_msg)
+            return redirect('product_detail', product_id=product.pk)
+
+    else:
+        form = ProductForm()
+
+    cart_item_count = 0
+    if request.user.is_authenticated:
+        try:
+            cart_item_count = request.user.cart.total_items
+        except Cart.DoesNotExist:
+            pass
+
+    return render(request, 'shop/add_product.html', {
+        'form': form,
+        'cart_item_count': cart_item_count,
+    })
+

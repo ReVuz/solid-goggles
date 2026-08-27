@@ -1,0 +1,240 @@
+{% extends "shop/base.html" %}
+
+{% block title %}Add Product – MiniEcom{% endblock %}
+
+{% block breadcrumb_extra %}
+  &rsaquo; <a href="{% url 'add_product' %}">Add Product</a>
+{% endblock %}
+
+{% block content %}
+<style>
+  /* ── AI badge ─────────────────────────────────────── */
+  .ai-badge {
+    display: inline-block;
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 2px 7px;
+    border-radius: 3px;
+    margin-left: 6px;
+    vertical-align: middle;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── Form helpers ─────────────────────────────────── */
+  .form-section {
+    background: #fff;
+    border: 1px solid #ddd;
+    margin-bottom: 20px;
+  }
+
+  .form-section .section-header {
+    background: #417690;
+    color: #fff;
+    font-size: 13px;
+    font-weight: bold;
+    padding: 6px 10px;
+    margin: 0;
+  }
+
+  .form-row {
+    padding: 10px 12px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .form-row:last-child { border-bottom: none; }
+
+  .form-row label {
+    font-size: 13px;
+    font-weight: bold;
+    color: #666;
+    width: 260px;
+    flex-shrink: 0;
+    padding-top: 6px;
+  }
+
+  .form-row .field-wrap {
+    flex: 1;
+  }
+
+  .form-row input[type=text],
+  .form-row input[type=url],
+  .form-row input[type=number],
+  .form-row textarea {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    padding: 6px 8px;
+    font-size: 13px;
+    font-family: inherit;
+  }
+
+  .form-row textarea { resize: vertical; }
+
+  .form-row input:focus,
+  .form-row textarea:focus {
+    outline: none;
+    border-color: #417690;
+  }
+
+  .help-text {
+    font-size: 11px;
+    color: #888;
+    margin-top: 4px;
+  }
+
+  .errorlist {
+    color: #ba2121;
+    font-size: 12px;
+    margin: 4px 0 0 0;
+    padding-left: 18px;
+  }
+
+  /* ── AI info banner ───────────────────────────────── */
+  .ai-info {
+    background: #e8f4fd;
+    border: 1px solid #bee5eb;
+    padding: 10px 14px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    color: #0c5460;
+  }
+
+  .ai-info ul {
+    margin: 6px 0 0 0;
+    padding-left: 20px;
+  }
+
+  /* ── Submit row ───────────────────────────────────── */
+  .submit-row {
+    background: #f8f8f8;
+    border: 1px solid #ddd;
+    padding: 10px 14px;
+    text-align: right;
+  }
+
+  .submit-row input[type=submit] {
+    background: #417690;
+    color: #fff;
+    border: none;
+    padding: 8px 18px;
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+  }
+
+  .submit-row input[type=submit]:hover {
+    background: #205067;
+  }
+
+  .cancel-link {
+    font-size: 13px;
+    margin-right: 12px;
+  }
+</style>
+
+<h1>Add New Product <span class="ai-badge">✦ AI Enhanced</span></h1>
+
+<!-- AI capability notice -->
+<div class="ai-info">
+  <strong>✦ AI-Powered Form</strong> — Leave <em>Description</em> and/or <em>Price</em> blank
+  and our Gemini AI will generate them for you automatically before saving.
+  <ul>
+    <li>Blank <strong>Description</strong> → AI writes a professional product copy.</li>
+    <li>Blank <strong>Price</strong> → AI predicts a realistic market price in ₹.</li>
+  </ul>
+</div>
+
+<form method="post" id="add-product-form" novalidate>
+  {% csrf_token %}
+
+  {% if form.non_field_errors %}
+    <div class="errornote">
+      {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+    </div>
+  {% endif %}
+
+  <!-- ── Basic Information ───────────────────────── -->
+  <div class="form-section">
+    <p class="section-header">Basic Information</p>
+
+    <div class="form-row">
+      <label for="id_name">Product Name *</label>
+      <div class="field-wrap">
+        {{ form.name }}
+        {% if form.name.errors %}<ul class="errorlist">{% for e in form.name.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label for="id_category">Category *</label>
+      <div class="field-wrap">
+        {{ form.category }}
+        <p class="help-text">e.g. Electronics, Clothing, Home & Kitchen, Books…</p>
+        {% if form.category.errors %}<ul class="errorlist">{% for e in form.category.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label for="id_image_url">Image URL <span style="font-weight:normal;">(optional)</span></label>
+      <div class="field-wrap">
+        {{ form.image_url }}
+        {% if form.image_url.errors %}<ul class="errorlist">{% for e in form.image_url.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- ── AI-Enhanced Fields ──────────────────────── -->
+  <div class="form-section">
+    <p class="section-header">Description &amp; Pricing <span class="ai-badge">✦ AI</span></p>
+
+    <div class="form-row">
+      <label for="id_description">
+        Description
+        <span class="ai-badge">✦ AI</span>
+      </label>
+      <div class="field-wrap">
+        {{ form.description }}
+        <p class="help-text">Leave blank — AI will generate a professional description from the product name and category.</p>
+        {% if form.description.errors %}<ul class="errorlist">{% for e in form.description.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label for="id_price">
+        Price ₹
+        <span class="ai-badge">✦ AI</span>
+      </label>
+      <div class="field-wrap">
+        {{ form.price }}
+        <p class="help-text">Leave blank — AI will predict a realistic INR market price.</p>
+        {% if form.price.errors %}<ul class="errorlist">{% for e in form.price.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Inventory ────────────────────────────────── -->
+  <div class="form-section">
+    <p class="section-header">Inventory</p>
+
+    <div class="form-row">
+      <label for="id_stock">Stock Quantity *</label>
+      <div class="field-wrap">
+        {{ form.stock }}
+        {% if form.stock.errors %}<ul class="errorlist">{% for e in form.stock.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Actions ──────────────────────────────────── -->
+  <div class="submit-row">
+    <span class="cancel-link"><a href="{% url 'product_list' %}">Cancel</a></span>
+    <input type="submit" id="submit-add-product" value="Save Product (with AI Enhancement)">
+  </div>
+</form>
+{% endblock %}

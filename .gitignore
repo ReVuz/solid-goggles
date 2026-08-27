@@ -62,6 +62,12 @@ db.sqlite3
 db.sqlite3-journal
 media/
 
+# Environment variables — never commit secrets
+.env
+.env.*
+!.env.example
+
+
 # Flask stuff:
 instance/
 .webassets-cache

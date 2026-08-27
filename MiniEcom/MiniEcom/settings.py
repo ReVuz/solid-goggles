@@ -11,19 +11,24 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Load environment variables from .env (silently ignored if file doesn't exist)
+from dotenv import load_dotenv
+load_dotenv(BASE_DIR / '.env')
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-=jbs7z3*vev)b&no_pv&w2#8j5tdb%pbx-#h-bb(_z%6-q0^ff'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-fallback-key-change-me')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = []
 
@@ -126,3 +131,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = '/login/'            # Where @login_required redirects unauthenticated users
 LOGIN_REDIRECT_URL = '/'         # Where to go after a successful login (fallback)
 LOGOUT_REDIRECT_URL = '/login/'  # Where to go after logout
+
+# ---------------------------------------------------------------------------
+# AI Service — Google Gemini
+# ---------------------------------------------------------------------------
+# Set the GEMINI_API_KEY environment variable before starting the server, e.g.:
+#   export GEMINI_API_KEY="your-api-key-here"
+# Or hard-code it below for development only (do NOT commit to version control).
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")

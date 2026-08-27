@@ -347,6 +347,7 @@
     {% if user.is_authenticated %}
       Welcome, <strong>{{ user.username }}</strong>.
       <a href="{% url 'view_cart' %}">View cart ({{ cart_item_count }})</a> /
+      <a href="{% url 'add_product' %}">Add Product</a> /
       <form method="post" action="{% url 'logout' %}" style="display:inline;">
         {% csrf_token %}
         <button type="submit" style="background:none;border:none;color:#fff;text-decoration:underline;cursor:pointer;font-size:11px;padding:0;font-family:inherit;">Log out</button>

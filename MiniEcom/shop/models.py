@@ -20,6 +20,8 @@ class Customer(models.Model):
 class Product(models.Model):
     """A product available for purchase in the store."""
     name = models.CharField(max_length=150)
+    # Category used for AI description/price prompts and for filtering
+    category = models.CharField(max_length=100, blank=True, default='')
     description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     stock = models.IntegerField()
